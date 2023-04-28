@@ -1,16 +1,34 @@
-# This is a sample Python script.
+import numpy as np
+import pandas as pd
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+import datetime
+import time
 
 
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
+    tdef = np.dtype([('nodeid', np.uint16), ('valdouble', np.float64), ('actualtime', np.str_), ('quality', np.uint8)])
+    t = np.dtype([('nodeid', np.uint16), ('valdouble', np.float64), ('actualtime', 'datetime64[ns]'), ('quality', np.uint8)])
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    start = time.time()
+    df = pd.read_csv('data_13-03-2023_17-08/data_13-03-2023_17-08.csv', dtype=tdef)
+    df['actualtime'] = pd.to_datetime(df['actualtime'])
+    # df['actualtime'] = pd.to_numeric(df['actualtime'], downcast='float')
+    # dt_lst = [pd.to_datetime(element).to_numpy() for element in df['actualtime']]
+    # df['actualtime'] = pd.DataFrame(dt_lst, dtype=object)
+    end = time.time()
+
+    print('pd.read_csv|parse_dates:', end - start)
+
+    recs = df.to_records(index=False)
+
+    recs.tofile('test.sdb')
+
+    start = time.time()
+    recs = np.fromfile('test.sdb', dtype=t)
+    df = pd.DataFrame(recs)
+    end = time.time()
+
+    print('np.fromfile:', end - start)
+
+
+
